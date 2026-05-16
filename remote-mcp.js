@@ -13,6 +13,14 @@ const {
 
 const app = express();
 
+app.use(express.json());
+
+/*
+|--------------------------------------------------------------------------
+| MCP SERVER
+|--------------------------------------------------------------------------
+*/
+
 const server = new Server(
   {
     name: 'financial-remote-mcp',
@@ -24,6 +32,22 @@ const server = new Server(
     },
   }
 );
+
+/*
+|--------------------------------------------------------------------------
+| MOCK CUSTOMER DATA
+|--------------------------------------------------------------------------
+*/
+
+const customer = {
+  customerName: 'Rahul Sharma',
+  customerId: 'CUST001',
+  loanNumber: 'LN2026001',
+  emiAmount: 14520,
+  nextEmiDate: '5 June 2026',
+  dueAmount: 0,
+  nocStatus: 'Available',
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -47,8 +71,8 @@ server.setRequestHandler(
         },
 
         {
-          name: 'get_noc_status',
-          description: 'Fetch NOC status',
+          name: 'get_due_amount',
+          description: 'Fetch pending due amount',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -56,8 +80,8 @@ server.setRequestHandler(
         },
 
         {
-          name: 'get_due_amount',
-          description: 'Fetch pending due amount',
+          name: 'get_noc_status',
+          description: 'Fetch customer NOC status',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -71,7 +95,7 @@ server.setRequestHandler(
 
 /*
 |--------------------------------------------------------------------------
-| CALL TOOL
+| TOOL EXECUTION
 |--------------------------------------------------------------------------
 */
 
@@ -87,46 +111,20 @@ server.setRequestHandler(
 
     if (request.params.name === 'get_emi_details') {
 
-      const customer = {
-        customerName: 'Rahul Sharma',
-        loanNumber: 'LN2026001',
-        emiAmount: 14520,
-        nextEmiDate: '5 June 2026',
-        nocStatus: 'Available',
-      };
-
       return {
         content: [
           {
             type: 'text',
             text:
 `Customer Name: ${customer.customerName}
+
+Customer ID: ${customer.customerId}
+
 Loan Number: ${customer.loanNumber}
+
 EMI Amount: ₹${customer.emiAmount}
-Next EMI Date: ${customer.nextEmiDate}
-NOC Status: ${customer.nocStatus}`,
-          },
-        ],
-      };
 
-    }
-
-    /*
-    ------------------------------------------------------------------------
-    NOC STATUS
-    ------------------------------------------------------------------------
-    */
-
-    if (request.params.name === 'get_noc_status') {
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text:
-`Your NOC status is: AVAILABLE
-
-You can download your NOC after loan closure verification.`,
+Next EMI Date: ${customer.nextEmiDate}`,
           },
         ],
       };
@@ -146,9 +144,31 @@ You can download your NOC after loan closure verification.`,
           {
             type: 'text',
             text:
-`Your current due amount is ₹0.
+`Current Due Amount: ₹${customer.dueAmount}
 
-No pending dues found for your loan account.`,
+No pending dues found for your account.`,
+          },
+        ],
+      };
+
+    }
+
+    /*
+    ------------------------------------------------------------------------
+    NOC STATUS
+    ------------------------------------------------------------------------
+    */
+
+    if (request.params.name === 'get_noc_status') {
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text:
+`NOC Status: ${customer.nocStatus}
+
+Your NOC is ready for download after loan closure verification.`,
           },
         ],
       };
@@ -159,6 +179,14 @@ No pending dues found for your loan account.`,
 
   }
 );
+
+/*
+|--------------------------------------------------------------------------
+| TRANSPORT STORAGE
+|--------------------------------------------------------------------------
+*/
+
+const transports = {};
 
 /*
 |--------------------------------------------------------------------------
@@ -173,6 +201,14 @@ app.get('/sse', async (req, res) => {
     res
   );
 
+  transports[transport.sessionId] = transport;
+
+  res.on('close', () => {
+
+    delete transports[transport.sessionId];
+
+  });
+
   await server.connect(transport);
 
 });
@@ -185,7 +221,19 @@ app.get('/sse', async (req, res) => {
 
 app.post('/messages', async (req, res) => {
 
-  res.sendStatus(200);
+  const sessionId = req.query.sessionId;
+
+  const transport = transports[sessionId];
+
+  if (!transport) {
+
+    return res
+      .status(400)
+      .send('No transport found for session');
+
+  }
+
+  await transport.handlePostMessage(req, res);
 
 });
 
