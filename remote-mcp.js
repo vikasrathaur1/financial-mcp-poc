@@ -7,6 +7,10 @@ const {
 } = require('@modelcontextprotocol/sdk/server/sse.js');
 
 const {
+  StreamableHTTPServerTransport,
+} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
+
+const {
   ListToolsRequestSchema,
   CallToolRequestSchema,
 } = require('@modelcontextprotocol/sdk/types.js');
@@ -35,7 +39,7 @@ const server = new Server(
 
 /*
 |--------------------------------------------------------------------------
-| MOCK CUSTOMER DATA
+| MOCK DATA
 |--------------------------------------------------------------------------
 */
 
@@ -63,7 +67,7 @@ server.setRequestHandler(
       tools: [
         {
           name: 'get_emi_details',
-          description: 'Fetch customer EMI details',
+          description: 'Fetch EMI details',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -72,7 +76,7 @@ server.setRequestHandler(
 
         {
           name: 'get_due_amount',
-          description: 'Fetch pending due amount',
+          description: 'Fetch due amount',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -81,7 +85,7 @@ server.setRequestHandler(
 
         {
           name: 'get_noc_status',
-          description: 'Fetch customer NOC status',
+          description: 'Fetch NOC status',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -103,12 +107,6 @@ server.setRequestHandler(
   CallToolRequestSchema,
   async (request) => {
 
-    /*
-    ------------------------------------------------------------------------
-    EMI DETAILS
-    ------------------------------------------------------------------------
-    */
-
     if (request.params.name === 'get_emi_details') {
 
       return {
@@ -117,8 +115,6 @@ server.setRequestHandler(
             type: 'text',
             text:
 `Customer Name: ${customer.customerName}
-
-Customer ID: ${customer.customerId}
 
 Loan Number: ${customer.loanNumber}
 
@@ -131,12 +127,6 @@ Next EMI Date: ${customer.nextEmiDate}`,
 
     }
 
-    /*
-    ------------------------------------------------------------------------
-    DUE AMOUNT
-    ------------------------------------------------------------------------
-    */
-
     if (request.params.name === 'get_due_amount') {
 
       return {
@@ -146,18 +136,12 @@ Next EMI Date: ${customer.nextEmiDate}`,
             text:
 `Current Due Amount: ₹${customer.dueAmount}
 
-No pending dues found for your account.`,
+No pending dues found.`,
           },
         ],
       };
 
     }
-
-    /*
-    ------------------------------------------------------------------------
-    NOC STATUS
-    ------------------------------------------------------------------------
-    */
 
     if (request.params.name === 'get_noc_status') {
 
@@ -166,9 +150,7 @@ No pending dues found for your account.`,
           {
             type: 'text',
             text:
-`NOC Status: ${customer.nocStatus}
-
-Your NOC is ready for download after loan closure verification.`,
+`NOC Status: ${customer.nocStatus}`,
           },
         ],
       };
@@ -182,17 +164,11 @@ Your NOC is ready for download after loan closure verification.`,
 
 /*
 |--------------------------------------------------------------------------
-| TRANSPORT STORAGE
+| SSE TRANSPORT
 |--------------------------------------------------------------------------
 */
 
-const transports = {};
-
-/*
-|--------------------------------------------------------------------------
-| SSE ENDPOINT
-|--------------------------------------------------------------------------
-*/
+const sseTransports = {};
 
 app.get('/sse', async (req, res) => {
 
@@ -201,11 +177,11 @@ app.get('/sse', async (req, res) => {
     res
   );
 
-  transports[transport.sessionId] = transport;
+  sseTransports[transport.sessionId] = transport;
 
   res.on('close', () => {
 
-    delete transports[transport.sessionId];
+    delete sseTransports[transport.sessionId];
 
   });
 
@@ -213,27 +189,38 @@ app.get('/sse', async (req, res) => {
 
 });
 
-/*
-|--------------------------------------------------------------------------
-| MESSAGE ENDPOINT
-|--------------------------------------------------------------------------
-*/
-
 app.post('/messages', async (req, res) => {
 
   const sessionId = req.query.sessionId;
 
-  const transport = transports[sessionId];
+  const transport = sseTransports[sessionId];
 
   if (!transport) {
 
     return res
       .status(400)
-      .send('No transport found for session');
+      .send('No transport found');
 
   }
 
   await transport.handlePostMessage(req, res);
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| STREAMABLE HTTP TRANSPORT
+|--------------------------------------------------------------------------
+*/
+
+app.post('/sse', async (req, res) => {
+
+  const transport =
+    new StreamableHTTPServerTransport();
+
+  await server.connect(transport);
+
+  await transport.handleRequest(req, res, req.body);
 
 });
 
