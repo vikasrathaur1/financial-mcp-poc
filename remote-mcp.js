@@ -21,99 +21,101 @@ app.use(express.json());
 
 /*
 |--------------------------------------------------------------------------
-| MCP SERVER
+| CREATE MCP SERVER
 |--------------------------------------------------------------------------
 */
 
-const server = new Server(
-  {
-    name: 'financial-remote-mcp',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      tools: {},
+function createServer() {
+
+  const server = new Server(
+    {
+      name: 'financial-remote-mcp',
+      version: '1.0.0',
     },
-  }
-);
+    {
+      capabilities: {
+        tools: {},
+      },
+    }
+  );
 
-/*
-|--------------------------------------------------------------------------
-| MOCK DATA
-|--------------------------------------------------------------------------
-*/
+  /*
+  --------------------------------------------------------------------------
+  MOCK DATA
+  --------------------------------------------------------------------------
+  */
 
-const customer = {
-  customerName: 'Rahul Sharma',
-  customerId: 'CUST001',
-  loanNumber: 'LN2026001',
-  emiAmount: 14520,
-  nextEmiDate: '5 June 2026',
-  dueAmount: 0,
-  nocStatus: 'Available',
-};
+  const customer = {
+    customerName: 'Rahul Sharma',
+    customerId: 'CUST001',
+    loanNumber: 'LN2026001',
+    emiAmount: 14520,
+    nextEmiDate: '5 June 2026',
+    dueAmount: 0,
+    nocStatus: 'Available',
+  };
 
-/*
-|--------------------------------------------------------------------------
-| LIST TOOLS
-|--------------------------------------------------------------------------
-*/
+  /*
+  --------------------------------------------------------------------------
+  LIST TOOLS
+  --------------------------------------------------------------------------
+  */
 
-server.setRequestHandler(
-  ListToolsRequestSchema,
-  async () => {
-
-    return {
-      tools: [
-        {
-          name: 'get_emi_details',
-          description: 'Fetch EMI details',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-          },
-        },
-
-        {
-          name: 'get_due_amount',
-          description: 'Fetch due amount',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-          },
-        },
-
-        {
-          name: 'get_noc_status',
-          description: 'Fetch NOC status',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-          },
-        },
-      ],
-    };
-
-  }
-);
-
-/*
-|--------------------------------------------------------------------------
-| TOOL EXECUTION
-|--------------------------------------------------------------------------
-*/
-
-server.setRequestHandler(
-  CallToolRequestSchema,
-  async (request) => {
-
-    if (request.params.name === 'get_emi_details') {
+  server.setRequestHandler(
+    ListToolsRequestSchema,
+    async () => {
 
       return {
-        content: [
+        tools: [
           {
-            type: 'text',
-            text:
+            name: 'get_emi_details',
+            description: 'Fetch EMI details',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+
+          {
+            name: 'get_due_amount',
+            description: 'Fetch due amount',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+
+          {
+            name: 'get_noc_status',
+            description: 'Fetch NOC status',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+        ],
+      };
+
+    }
+  );
+
+  /*
+  --------------------------------------------------------------------------
+  TOOL EXECUTION
+  --------------------------------------------------------------------------
+  */
+
+  server.setRequestHandler(
+    CallToolRequestSchema,
+    async (request) => {
+
+      if (request.params.name === 'get_emi_details') {
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text:
 `Customer Name: ${customer.customerName}
 
 Loan Number: ${customer.loanNumber}
@@ -121,46 +123,50 @@ Loan Number: ${customer.loanNumber}
 EMI Amount: ₹${customer.emiAmount}
 
 Next EMI Date: ${customer.nextEmiDate}`,
-          },
-        ],
-      };
+            },
+          ],
+        };
 
-    }
+      }
 
-    if (request.params.name === 'get_due_amount') {
+      if (request.params.name === 'get_due_amount') {
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text:
+        return {
+          content: [
+            {
+              type: 'text',
+              text:
 `Current Due Amount: ₹${customer.dueAmount}
 
 No pending dues found.`,
-          },
-        ],
-      };
+            },
+          ],
+        };
 
-    }
+      }
 
-    if (request.params.name === 'get_noc_status') {
+      if (request.params.name === 'get_noc_status') {
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text:
+        return {
+          content: [
+            {
+              type: 'text',
+              text:
 `NOC Status: ${customer.nocStatus}`,
-          },
-        ],
-      };
+            },
+          ],
+        };
+
+      }
+
+      throw new Error('Tool not found');
 
     }
+  );
 
-    throw new Error('Tool not found');
+  return server;
 
-  }
-);
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -172,55 +178,99 @@ const sseTransports = {};
 
 app.get('/sse', async (req, res) => {
 
-  const transport = new SSEServerTransport(
-    '/messages',
-    res
-  );
+  try {
 
-  sseTransports[transport.sessionId] = transport;
+    const server = createServer();
 
-  res.on('close', () => {
+    const transport = new SSEServerTransport(
+      '/messages',
+      res
+    );
 
-    delete sseTransports[transport.sessionId];
+    sseTransports[transport.sessionId] = transport;
 
-  });
+    res.on('close', () => {
 
-  await server.connect(transport);
+      delete sseTransports[transport.sessionId];
 
-});
+    });
 
-app.post('/messages', async (req, res) => {
+    await server.connect(transport);
 
-  const sessionId = req.query.sessionId;
+  } catch (error) {
 
-  const transport = sseTransports[sessionId];
+    console.error(error);
 
-  if (!transport) {
-
-    return res
-      .status(400)
-      .send('No transport found');
+    res.status(500).send('SSE Error');
 
   }
-
-  await transport.handlePostMessage(req, res);
 
 });
 
 /*
 |--------------------------------------------------------------------------
-| STREAMABLE HTTP TRANSPORT
+| SSE MESSAGE ENDPOINT
+|--------------------------------------------------------------------------
+*/
+
+app.post('/messages', async (req, res) => {
+
+  try {
+
+    const sessionId = req.query.sessionId;
+
+    const transport = sseTransports[sessionId];
+
+    if (!transport) {
+
+      return res
+        .status(400)
+        .send('No transport found');
+
+    }
+
+    await transport.handlePostMessage(req, res);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).send('Message Error');
+
+  }
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| STREAMABLE HTTP ENDPOINT
 |--------------------------------------------------------------------------
 */
 
 app.post('/sse', async (req, res) => {
 
-  const transport =
-    new StreamableHTTPServerTransport();
+  try {
 
-  await server.connect(transport);
+    const server = createServer();
 
-  await transport.handleRequest(req, res, req.body);
+    const transport =
+      new StreamableHTTPServerTransport();
+
+    await server.connect(transport);
+
+    await transport.handleRequest(
+      req,
+      res,
+      req.body
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).send('Streamable HTTP Error');
+
+  }
 
 });
 
