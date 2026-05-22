@@ -21,6 +21,152 @@ app.use(express.json());
 
 /*
 |--------------------------------------------------------------------------
+| GLOBAL CUSTOMER DATA
+|--------------------------------------------------------------------------
+*/
+
+const customers = {
+
+  "9999999999": {
+
+    customer_Name: 'Vikas Singh Rathaur',
+
+    prodDesc: 'PERSONAL LOAN',
+
+    roi: 11.25,
+
+    agreementNo: 'X402P34T9588444',
+
+    disbDate: '27/03/2025',
+
+    partnerName: null,
+
+    flexiFlag: 'Y',
+
+    totalOverDue: 0,
+
+    pos: 4203,
+
+    prodCategory: 'PERSONAL LOAN',
+
+    relStatus: 'Active',
+
+    prodId: 'PSPFL',
+
+    missedEmi: 0,
+
+    netTenure: 96,
+
+    isMilesFlag: 'N',
+
+    crmDealId: 'B2C000117643003',
+
+    primaryCustomerId: null,
+
+    relAmount: 3739000,
+
+    opportunityId: null,
+
+    nextEMIAmount: 132,
+
+    amcCharges: '0',
+
+    amountDrawnLimit: 3734797,
+
+    sourceSysId: '2',
+
+    applId: '1015709507',
+
+    listofAgreementNos: null,
+
+    closureDate: null,
+
+    grossTenure: 96,
+
+    balanceTenure: 83,
+
+    nextEmiDate:
+      '2026-08-02T00:00:00.0000000Z',
+
+    loanExpiryDate: '02/04/2033',
+  },
+
+  "8888888888": {
+
+    customer_Name: 'Rahul Sharma',
+
+    prodDesc: 'HOME LOAN',
+
+    roi: 8.75,
+
+    agreementNo: 'HL99887766',
+
+    disbDate: '15/01/2024',
+
+    partnerName: null,
+
+    flexiFlag: 'N',
+
+    totalOverDue: 2500,
+
+    pos: 2450000,
+
+    prodCategory: 'HOME LOAN',
+
+    relStatus: 'Active',
+
+    prodId: 'HL001',
+
+    missedEmi: 1,
+
+    netTenure: 240,
+
+    isMilesFlag: 'N',
+
+    crmDealId: 'B2C000117643999',
+
+    primaryCustomerId: null,
+
+    relAmount: 3500000,
+
+    opportunityId: null,
+
+    nextEMIAmount: 28500,
+
+    amcCharges: '999',
+
+    amountDrawnLimit: 3500000,
+
+    sourceSysId: '2',
+
+    applId: '1015709999',
+
+    listofAgreementNos: null,
+
+    closureDate: null,
+
+    grossTenure: 240,
+
+    balanceTenure: 220,
+
+    nextEmiDate:
+      '2026-08-05T00:00:00.0000000Z',
+
+    loanExpiryDate: '15/01/2044',
+  }
+
+};
+
+/*
+|--------------------------------------------------------------------------
+| GLOBAL VERIFIED USERS
+|--------------------------------------------------------------------------
+*/
+
+const verifiedUsers = {};
+
+/*
+|--------------------------------------------------------------------------
 | CREATE MCP SERVER
 |--------------------------------------------------------------------------
 */
@@ -30,7 +176,7 @@ function createServer() {
   const server = new Server(
     {
       name: 'financial-remote-mcp',
-      version: '3.0.0',
+      version: '4.0.0',
     },
     {
       capabilities: {
@@ -38,152 +184,6 @@ function createServer() {
       },
     }
   );
-
-  /*
-  |--------------------------------------------------------------------------
-  | CUSTOMER DATA
-  |--------------------------------------------------------------------------
-  */
-
-  const customers = {
-
-    "9999999999": {
-
-      customer_Name: 'Vikas Singh Rathaur',
-
-      prodDesc: 'PERSONAL LOAN',
-
-      roi: 11.25,
-
-      agreementNo: 'X402P34T9588444',
-
-      disbDate: '27/03/2025',
-
-      partnerName: null,
-
-      flexiFlag: 'Y',
-
-      totalOverDue: 0,
-
-      pos: 4203,
-
-      prodCategory: 'PERSONAL LOAN',
-
-      relStatus: 'Active',
-
-      prodId: 'PSPFL',
-
-      missedEmi: 0,
-
-      netTenure: 96,
-
-      isMilesFlag: 'N',
-
-      crmDealId: 'B2C000117643003',
-
-      primaryCustomerId: null,
-
-      relAmount: 3739000,
-
-      opportunityId: null,
-
-      nextEMIAmount: 132,
-
-      amcCharges: '0',
-
-      amountDrawnLimit: 3734797,
-
-      sourceSysId: '2',
-
-      applId: '1015709507',
-
-      listofAgreementNos: null,
-
-      closureDate: null,
-
-      grossTenure: 96,
-
-      balanceTenure: 83,
-
-      nextEmiDate:
-        '2026-08-02T00:00:00.0000000Z',
-
-      loanExpiryDate: '02/04/2033',
-    },
-
-    "8888888888": {
-
-      customer_Name: 'Rahul Sharma',
-
-      prodDesc: 'HOME LOAN',
-
-      roi: 8.75,
-
-      agreementNo: 'HL99887766',
-
-      disbDate: '15/01/2024',
-
-      partnerName: null,
-
-      flexiFlag: 'N',
-
-      totalOverDue: 2500,
-
-      pos: 2450000,
-
-      prodCategory: 'HOME LOAN',
-
-      relStatus: 'Active',
-
-      prodId: 'HL001',
-
-      missedEmi: 1,
-
-      netTenure: 240,
-
-      isMilesFlag: 'N',
-
-      crmDealId: 'B2C000117643999',
-
-      primaryCustomerId: null,
-
-      relAmount: 3500000,
-
-      opportunityId: null,
-
-      nextEMIAmount: 28500,
-
-      amcCharges: '999',
-
-      amountDrawnLimit: 3500000,
-
-      sourceSysId: '2',
-
-      applId: '1015709999',
-
-      listofAgreementNos: null,
-
-      closureDate: null,
-
-      grossTenure: 240,
-
-      balanceTenure: 220,
-
-      nextEmiDate:
-        '2026-08-05T00:00:00.0000000Z',
-
-      loanExpiryDate: '15/01/2044',
-    }
-
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | VERIFIED USERS
-  |--------------------------------------------------------------------------
-  */
-
-  const verifiedUsers = {};
 
   /*
   |--------------------------------------------------------------------------
@@ -352,12 +352,14 @@ function createServer() {
 
               mobileNumber: {
                 type: 'string',
+
                 description:
                   'Registered mobile number',
               },
 
               otp: {
                 type: 'string',
+
                 description:
                   'OTP for verification',
               },
@@ -494,7 +496,7 @@ For demo use OTP: 123456`,
 
       /*
       ----------------------------------------------------------------------
-      OTP VALIDATION FOR PROTECTED TOOLS
+      PROTECTED TOOLS
       ----------------------------------------------------------------------
       */
 
