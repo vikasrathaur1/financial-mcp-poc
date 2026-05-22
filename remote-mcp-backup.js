@@ -30,7 +30,7 @@ function createServer() {
   const server = new Server(
     {
       name: 'financial-remote-mcp',
-      version: '3.0.0',
+      version: '2.0.0',
     },
     {
       capabilities: {
@@ -41,149 +41,78 @@ function createServer() {
 
   /*
   |--------------------------------------------------------------------------
-  | CUSTOMER DATA
+  | MOCK CUSTOMER DATA
   |--------------------------------------------------------------------------
   */
 
-  const customers = {
+  const customerData = {
+    loan: [
+      {
+        prodDesc: 'PERSONAL LOAN',
 
-    "9999999999": {
+        customer_Name: 'Vikas Singh Rathaur',
 
-      customer_Name: 'Vikas Singh Rathaur',
+        roi: 11.25,
 
-      prodDesc: 'PERSONAL LOAN',
+        agreementNo: 'X402P34T9588444',
 
-      roi: 11.25,
+        disbDate: '27/03/2025',
 
-      agreementNo: 'X402P34T9588444',
+        partnerName: null,
 
-      disbDate: '27/03/2025',
+        flexiFlag: 'Y',
 
-      partnerName: null,
+        totalOverDue: 0,
 
-      flexiFlag: 'Y',
+        pos: 4203,
 
-      totalOverDue: 0,
+        prodCategory: 'PERSONAL LOAN',
 
-      pos: 4203,
+        relStatus: 'Active',
 
-      prodCategory: 'PERSONAL LOAN',
+        prodId: 'PSPFL',
 
-      relStatus: 'Active',
+        missedEmi: 0,
 
-      prodId: 'PSPFL',
+        netTenure: 96,
 
-      missedEmi: 0,
+        isMilesFlag: 'N',
 
-      netTenure: 96,
+        crmDealId: 'B2C000117643003',
 
-      isMilesFlag: 'N',
+        primaryCustomerId: null,
 
-      crmDealId: 'B2C000117643003',
+        relAmount: 3739000,
 
-      primaryCustomerId: null,
+        opportunityId: null,
 
-      relAmount: 3739000,
+        nextEMIAmount: 132,
 
-      opportunityId: null,
+        amcCharges: '0',
 
-      nextEMIAmount: 132,
+        amountDrawnLimit: 3734797,
 
-      amcCharges: '0',
+        sourceSysId: '2',
 
-      amountDrawnLimit: 3734797,
+        applId: '1015709507',
 
-      sourceSysId: '2',
+        listofAgreementNos: null,
 
-      applId: '1015709507',
+        closureDate: null,
 
-      listofAgreementNos: null,
+        grossTenure: 96,
 
-      closureDate: null,
+        balanceTenure: 83,
 
-      grossTenure: 96,
+        nextEmiDate:
+          '2026-08-02T00:00:00.0000000Z',
 
-      balanceTenure: 83,
-
-      nextEmiDate:
-        '2026-08-02T00:00:00.0000000Z',
-
-      loanExpiryDate: '02/04/2033',
-    },
-
-    "8888888888": {
-
-      customer_Name: 'Rahul Sharma',
-
-      prodDesc: 'HOME LOAN',
-
-      roi: 8.75,
-
-      agreementNo: 'HL99887766',
-
-      disbDate: '15/01/2024',
-
-      partnerName: null,
-
-      flexiFlag: 'N',
-
-      totalOverDue: 2500,
-
-      pos: 2450000,
-
-      prodCategory: 'HOME LOAN',
-
-      relStatus: 'Active',
-
-      prodId: 'HL001',
-
-      missedEmi: 1,
-
-      netTenure: 240,
-
-      isMilesFlag: 'N',
-
-      crmDealId: 'B2C000117643999',
-
-      primaryCustomerId: null,
-
-      relAmount: 3500000,
-
-      opportunityId: null,
-
-      nextEMIAmount: 28500,
-
-      amcCharges: '999',
-
-      amountDrawnLimit: 3500000,
-
-      sourceSysId: '2',
-
-      applId: '1015709999',
-
-      listofAgreementNos: null,
-
-      closureDate: null,
-
-      grossTenure: 240,
-
-      balanceTenure: 220,
-
-      nextEmiDate:
-        '2026-08-05T00:00:00.0000000Z',
-
-      loanExpiryDate: '15/01/2044',
-    }
-
+        loanExpiryDate: '02/04/2033',
+      },
+    ],
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | VERIFIED USERS
-  |--------------------------------------------------------------------------
-  */
-
-  const verifiedUsers = {};
+  const loan = customerData.loan[0];
 
   /*
   |--------------------------------------------------------------------------
@@ -194,136 +123,103 @@ function createServer() {
   const tools = [
 
     {
-      name: 'send_otp',
-      description:
-        'Send OTP to registered mobile number',
-    },
-
-    {
-      name: 'verify_otp',
-      description:
-        'Verify OTP for customer authentication',
-    },
-
-    {
       name: 'get_loan_details',
-      description:
-        'Fetch complete loan details',
+      description: 'Fetch complete loan details',
     },
 
     {
       name: 'get_emi_details',
-      description:
-        'Fetch EMI details',
+      description: 'Fetch EMI details',
     },
 
     {
       name: 'get_due_amount',
-      description:
-        'Fetch due amount',
+      description: 'Fetch due amount',
     },
 
     {
       name: 'get_noc_status',
-      description:
-        'Fetch NOC status',
+      description: 'Fetch NOC status',
     },
 
     {
       name: 'get_interest_rate',
-      description:
-        'Fetch current interest rate',
+      description: 'Fetch current interest rate',
     },
 
     {
       name: 'get_loan_status',
-      description:
-        'Fetch loan relationship status',
+      description: 'Fetch loan relationship status',
     },
 
     {
       name: 'get_balance_tenure',
-      description:
-        'Fetch remaining loan tenure',
+      description: 'Fetch remaining loan tenure',
     },
 
     {
       name: 'get_loan_amount',
-      description:
-        'Fetch total sanctioned loan amount',
+      description: 'Fetch total sanctioned loan amount',
     },
 
     {
       name: 'get_pos_amount',
-      description:
-        'Fetch principal outstanding amount',
+      description: 'Fetch principal outstanding amount',
     },
 
     {
       name: 'get_disbursement_details',
-      description:
-        'Fetch disbursement information',
+      description: 'Fetch disbursement information',
     },
 
     {
       name: 'get_loan_expiry',
-      description:
-        'Fetch loan expiry date',
+      description: 'Fetch loan expiry date',
     },
 
     {
       name: 'get_flexi_details',
-      description:
-        'Fetch flexi loan details',
+      description: 'Fetch flexi loan details',
     },
 
     {
       name: 'get_overdue_details',
-      description:
-        'Fetch overdue information',
+      description: 'Fetch overdue information',
     },
 
     {
       name: 'get_customer_profile',
-      description:
-        'Fetch customer profile',
+      description: 'Fetch customer profile',
     },
 
     {
       name: 'get_agreement_details',
-      description:
-        'Fetch agreement details',
+      description: 'Fetch agreement details',
     },
 
     {
       name: 'get_product_details',
-      description:
-        'Fetch product details',
+      description: 'Fetch product details',
     },
 
     {
       name: 'get_loan_summary',
-      description:
-        'Fetch summarized loan information',
+      description: 'Fetch summarized loan information',
     },
 
     {
-      name:
-        'check_loan_closure_eligibility',
-      description:
-        'Check loan closure eligibility',
+      name: 'check_loan_closure_eligibility',
+      description: 'Check whether loan is eligible for closure',
     },
 
     {
       name: 'get_foreclosure_status',
-      description:
-        'Fetch foreclosure eligibility',
+      description: 'Fetch foreclosure eligibility',
     },
 
     {
       name: 'get_amc_charges',
-      description:
-        'Fetch AMC charges',
+      description: 'Fetch AMC charges',
     },
 
   ];
@@ -341,29 +237,11 @@ function createServer() {
       return {
         tools: tools.map((tool) => ({
           name: tool.name,
-
-          description:
-            tool.description,
+          description: tool.description,
 
           inputSchema: {
             type: 'object',
-
-            properties: {
-
-              mobileNumber: {
-                type: 'string',
-                description:
-                  'Registered mobile number',
-              },
-
-              otp: {
-                type: 'string',
-                description:
-                  'OTP for verification',
-              },
-
-            },
-
+            properties: {},
           },
         })),
       };
@@ -381,206 +259,7 @@ function createServer() {
     CallToolRequestSchema,
     async (request) => {
 
-      const tool =
-        request.params.name;
-
-      const mobileNumber =
-        request.params.arguments
-          ?.mobileNumber;
-
-      const otp =
-        request.params.arguments
-          ?.otp;
-
-      const loan =
-        customers[mobileNumber];
-
-      /*
-      ----------------------------------------------------------------------
-      SEND OTP
-      ----------------------------------------------------------------------
-      */
-
-      if (tool === 'send_otp') {
-
-        if (!loan) {
-
-          return {
-            content: [
-              {
-                type: 'text',
-
-                text:
-                  'No customer found for this mobile number.',
-              },
-            ],
-          };
-
-        }
-
-        verifiedUsers[
-          mobileNumber
-        ] = false;
-
-        return {
-          content: [
-            {
-              type: 'text',
-
-              text:
-`OTP sent successfully to ${mobileNumber}
-
-For demo use OTP: 123456`,
-            },
-          ],
-        };
-
-      }
-
-      /*
-      ----------------------------------------------------------------------
-      VERIFY OTP
-      ----------------------------------------------------------------------
-      */
-
-      if (tool === 'verify_otp') {
-
-        if (!loan) {
-
-          return {
-            content: [
-              {
-                type: 'text',
-
-                text:
-                  'Customer not found.',
-              },
-            ],
-          };
-
-        }
-
-        if (otp === '123456') {
-
-          verifiedUsers[
-            mobileNumber
-          ] = true;
-
-          return {
-            content: [
-              {
-                type: 'text',
-
-                text:
-                  'OTP verification successful.',
-              },
-            ],
-          };
-
-        }
-
-        return {
-          content: [
-            {
-              type: 'text',
-
-              text:
-                'Invalid OTP.',
-            },
-          ],
-        };
-
-      }
-
-      /*
-      ----------------------------------------------------------------------
-      OTP VALIDATION FOR PROTECTED TOOLS
-      ----------------------------------------------------------------------
-      */
-
-      const protectedTools = [
-
-        'get_loan_details',
-
-        'get_emi_details',
-
-        'get_due_amount',
-
-        'get_noc_status',
-
-        'get_interest_rate',
-
-        'get_loan_status',
-
-        'get_balance_tenure',
-
-        'get_loan_amount',
-
-        'get_pos_amount',
-
-        'get_disbursement_details',
-
-        'get_loan_expiry',
-
-        'get_flexi_details',
-
-        'get_overdue_details',
-
-        'get_customer_profile',
-
-        'get_agreement_details',
-
-        'get_product_details',
-
-        'get_loan_summary',
-
-        'check_loan_closure_eligibility',
-
-        'get_foreclosure_status',
-
-        'get_amc_charges',
-
-      ];
-
-      if (
-        protectedTools.includes(tool)
-      ) {
-
-        if (!loan) {
-
-          return {
-            content: [
-              {
-                type: 'text',
-
-                text:
-                  'No customer found for this mobile number.',
-              },
-            ],
-          };
-
-        }
-
-        if (
-          !verifiedUsers[
-            mobileNumber
-          ]
-        ) {
-
-          return {
-            content: [
-              {
-                type: 'text',
-
-                text:
-                  'Please verify OTP first.',
-              },
-            ],
-          };
-
-        }
-
-      }
+      const tool = request.params.name;
 
       /*
       ----------------------------------------------------------------------
@@ -588,16 +267,12 @@ For demo use OTP: 123456`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_loan_details'
-      ) {
+      if (tool === 'get_loan_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Customer Name: ${loan.customer_Name}
 
@@ -624,16 +299,12 @@ Balance Tenure: ${loan.balanceTenure} months`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_emi_details'
-      ) {
+      if (tool === 'get_emi_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Next EMI Amount: ₹${loan.nextEMIAmount}
 
@@ -652,16 +323,12 @@ Missed EMI Count: ${loan.missedEmi}`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_due_amount'
-      ) {
+      if (tool === 'get_due_amount') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Current Due Amount: ₹${loan.totalOverDue}`,
             },
@@ -676,19 +343,14 @@ Missed EMI Count: ${loan.missedEmi}`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_noc_status'
-      ) {
+      if (tool === 'get_noc_status') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
-loan.relStatus ===
-'Closed'
+loan.relStatus === 'Closed'
   ? 'NOC Available'
   : 'Loan is Active. NOC not available yet.',
             },
@@ -703,16 +365,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_interest_rate'
-      ) {
+      if (tool === 'get_interest_rate') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Current ROI for your loan is ${loan.roi}%`,
             },
@@ -727,16 +385,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_loan_status'
-      ) {
+      if (tool === 'get_loan_status') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Your loan status is ${loan.relStatus}`,
             },
@@ -751,16 +405,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_balance_tenure'
-      ) {
+      if (tool === 'get_balance_tenure') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Remaining tenure is ${loan.balanceTenure} months`,
             },
@@ -775,16 +425,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_loan_amount'
-      ) {
+      if (tool === 'get_loan_amount') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Total sanctioned amount is ₹${loan.relAmount}`,
             },
@@ -799,16 +445,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_pos_amount'
-      ) {
+      if (tool === 'get_pos_amount') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Principal Outstanding Amount is ₹${loan.pos}`,
             },
@@ -823,16 +465,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_disbursement_details'
-      ) {
+      if (tool === 'get_disbursement_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Loan was disbursed on ${loan.disbDate}`,
             },
@@ -847,16 +485,12 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_loan_expiry'
-      ) {
+      if (tool === 'get_loan_expiry') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Loan expiry date is ${loan.loanExpiryDate}`,
             },
@@ -871,19 +505,14 @@ loan.relStatus ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_flexi_details'
-      ) {
+      if (tool === 'get_flexi_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
-loan.flexiFlag ===
-'Y'
+loan.flexiFlag === 'Y'
   ? 'Flexi facility is enabled'
   : 'Flexi facility is not enabled',
             },
@@ -898,16 +527,12 @@ loan.flexiFlag ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_overdue_details'
-      ) {
+      if (tool === 'get_overdue_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Total overdue amount is ₹${loan.totalOverDue}`,
             },
@@ -922,16 +547,12 @@ loan.flexiFlag ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_customer_profile'
-      ) {
+      if (tool === 'get_customer_profile') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Customer Name: ${loan.customer_Name}
 
@@ -950,16 +571,12 @@ Application ID: ${loan.applId}`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_agreement_details'
-      ) {
+      if (tool === 'get_agreement_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Agreement Number: ${loan.agreementNo}`,
             },
@@ -974,16 +591,12 @@ Application ID: ${loan.applId}`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_product_details'
-      ) {
+      if (tool === 'get_product_details') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Product Category: ${loan.prodCategory}
 
@@ -1000,16 +613,12 @@ Product ID: ${loan.prodId}`,
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_loan_summary'
-      ) {
+      if (tool === 'get_loan_summary') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Loan Summary
 
@@ -1039,10 +648,8 @@ Balance Tenure: ${loan.balanceTenure} months`,
           content: [
             {
               type: 'text',
-
               text:
-loan.totalOverDue ===
-0
+loan.totalOverDue === 0
   ? 'Loan is eligible for closure request'
   : 'Please clear overdue amount before closure',
             },
@@ -1057,16 +664,12 @@ loan.totalOverDue ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_foreclosure_status'
-      ) {
+      if (tool === 'get_foreclosure_status') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `Foreclosure is available for this loan`,
             },
@@ -1081,16 +684,12 @@ loan.totalOverDue ===
       ----------------------------------------------------------------------
       */
 
-      if (
-        tool ===
-        'get_amc_charges'
-      ) {
+      if (tool === 'get_amc_charges') {
 
         return {
           content: [
             {
               type: 'text',
-
               text:
 `AMC Charges: ₹${loan.amcCharges}`,
             },
@@ -1099,9 +698,7 @@ loan.totalOverDue ===
 
       }
 
-      throw new Error(
-        'Tool not found'
-      );
+      throw new Error('Tool not found');
 
     }
   );
@@ -1124,15 +721,13 @@ app.get('/sse', async (req, res) => {
 
     const server = createServer();
 
-    const transport =
-      new SSEServerTransport(
-        '/messages',
-        res
-      );
+    const transport = new SSEServerTransport(
+      '/messages',
+      res
+    );
 
-    sseTransports[
-      transport.sessionId
-    ] = transport;
+    sseTransports[transport.sessionId] =
+      transport;
 
     res.on('close', () => {
 
@@ -1142,17 +737,13 @@ app.get('/sse', async (req, res) => {
 
     });
 
-    await server.connect(
-      transport
-    );
+    await server.connect(transport);
 
   } catch (error) {
 
     console.error(error);
 
-    res
-      .status(500)
-      .send('SSE Error');
+    res.status(500).send('SSE Error');
 
   }
 
@@ -1164,47 +755,37 @@ app.get('/sse', async (req, res) => {
 |--------------------------------------------------------------------------
 */
 
-app.post(
-  '/messages',
-  async (req, res) => {
+app.post('/messages', async (req, res) => {
 
-    try {
+  try {
 
-      const sessionId =
-        req.query.sessionId;
+    const sessionId = req.query.sessionId;
 
-      const transport =
-        sseTransports[
-          sessionId
-        ];
+    const transport =
+      sseTransports[sessionId];
 
-      if (!transport) {
+    if (!transport) {
 
-        return res
-          .status(400)
-          .send(
-            'No transport found'
-          );
-
-      }
-
-      await transport.handlePostMessage(
-        req,
-        res
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      res
-        .status(500)
-        .send('Message Error');
+      return res
+        .status(400)
+        .send('No transport found');
 
     }
 
+    await transport.handlePostMessage(
+      req,
+      res
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).send('Message Error');
+
   }
-);
+
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -1216,15 +797,12 @@ app.post('/sse', async (req, res) => {
 
   try {
 
-    const server =
-      createServer();
+    const server = createServer();
 
     const transport =
       new StreamableHTTPServerTransport();
 
-    await server.connect(
-      transport
-    );
+    await server.connect(transport);
 
     await transport.handleRequest(
       req,
@@ -1238,9 +816,7 @@ app.post('/sse', async (req, res) => {
 
     res
       .status(500)
-      .send(
-        'Streamable HTTP Error'
-      );
+      .send('Streamable HTTP Error');
 
   }
 
