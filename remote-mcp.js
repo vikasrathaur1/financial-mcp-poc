@@ -1139,6 +1139,19 @@ app.get('/', (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
+| Post Method for MCP Tools (for tools that don't require OTP verification, e.g. loan discovery)
+|--------------------------------------------------------------------------
+*/
+app.post('/mcp', async (req, res) => {
+  const server = createServer();
+  const transport = new StreamableHTTPServerTransport();
+
+  await server.connect(transport);
+  await transport.handleRequest(req, res, req.body);
+});
+
+/*
+|--------------------------------------------------------------------------
 | START SERVER
 |--------------------------------------------------------------------------
 */
