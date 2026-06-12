@@ -738,44 +738,36 @@ app.post(
 |--------------------------------------------------------------------------
 */
 
-app.post(
-  "/mcp",
-  async (req, res) => {
+app.post("/mcp", async (req, res) => {
 
-    try {
+  try {
 
-      const server =
-        createServer();
+    const server = createServer();
 
-      const transport =
-        new StreamableHTTPServerTransport();
+    const transport =
+      new StreamableHTTPServerTransport();
 
-      await server.connect(
-        transport
-      );
+    await server.connect(
+      transport
+    );
 
-      await transport
-        .handleRequest(
-          req,
-          res,
-          req.body
-        );
-
-    } catch (error) {
-
-      console.error(error);
-
+    await transport.handleRequest(
+      req,
       res
-        .status(500)
-        .send(
-          "MCP Error"
-        );
-
-    }
+    );
 
   }
-);
+  catch(error){
 
+    console.error(error);
+
+    res.status(500).json({
+      error:error.message
+    });
+
+  }
+
+});
 /*
 |--------------------------------------------------------------------------
 | HEALTH CHECK
